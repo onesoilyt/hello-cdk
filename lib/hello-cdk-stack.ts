@@ -29,7 +29,7 @@ export class HelloCdkStack extends core.Stack {
     const getOneLambda = new lambda.Function(this, "getOneItemFunction", {
       code: new lambda.AssetCode("lib/lambdas"),
       handler: "get-one.handler",
-      runtime: lambda.Runtime.NODEJS_10_X,
+      runtime: lambda.Runtime.NODEJS_12_X,
       environment: {
         TABLE_NAME: dynamoTable.tableName,
         PRIMARY_KEY: "itemId"
@@ -39,7 +39,7 @@ export class HelloCdkStack extends core.Stack {
     const getAllLambda = new lambda.Function(this, "getAllItemsFunction", {
       code: new lambda.AssetCode("lib/lambdas"),
       handler: "get-all.handler",
-      runtime: lambda.Runtime.NODEJS_10_X,
+      runtime: lambda.Runtime.NODEJS_12_X,
       environment: {
         TABLE_NAME: dynamoTable.tableName,
         PRIMARY_KEY: "itemId"
@@ -47,9 +47,10 @@ export class HelloCdkStack extends core.Stack {
     });
 
     const createOne = new lambda.Function(this, "createItemFunction", {
+      // code: new lambda.AssetCode("/Users/xuyitu/projects/poc/hello-cdk"),
       code: new lambda.AssetCode("lib/lambdas"),
       handler: "create.handler",
-      runtime: lambda.Runtime.NODEJS_10_X,
+      runtime: lambda.Runtime.NODEJS_12_X,
       environment: {
         TABLE_NAME: dynamoTable.tableName,
         PRIMARY_KEY: "itemId"
@@ -59,7 +60,7 @@ export class HelloCdkStack extends core.Stack {
     const updateOne = new lambda.Function(this, "updateItemFunction", {
       code: new lambda.AssetCode("lib/lambdas"),
       handler: "update-one.handler",
-      runtime: lambda.Runtime.NODEJS_10_X,
+      runtime: lambda.Runtime.NODEJS_12_X,
       environment: {
         TABLE_NAME: dynamoTable.tableName,
         PRIMARY_KEY: "itemId"
@@ -69,7 +70,7 @@ export class HelloCdkStack extends core.Stack {
     const deleteOne = new lambda.Function(this, "deleteItemFunction", {
       code: new lambda.AssetCode("lib/lambdas"),
       handler: "delete-one.handler",
-      runtime: lambda.Runtime.NODEJS_10_X,
+      runtime: lambda.Runtime.NODEJS_12_X,
       environment: {
         TABLE_NAME: dynamoTable.tableName,
         PRIMARY_KEY: "itemId"

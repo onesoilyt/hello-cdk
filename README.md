@@ -41,3 +41,42 @@ The whole component contains:
 - Lambda pointing to `lambdas/update-one.ts`, containing code for **updating an item** in the DynamoDB table.
 - A DynamoDB table `items` that stores the data.
 - Five `LambdaIntegrations` that connect these Lambdas to the API.
+
+## More complicated lambda:
+
+https://stackoverflow.com/questions/57674293/lambda-cant-find-modules-from-outer-folders-when-deployed-with-cdk
+https://github.com/aws-samples/aws-cdk-examples/issues/110
+
+- Solution1:
+
+├── bin
+│ └── lambda.ts
+├── cdk.json
+├── cdk.out
+│ ├── LambdaStack.template.json
+│ ├── asset.lotsOfLetters
+│ │ ├── basic.js
+│ │ ├── node_modules # Node modules found here
+│ │ ├── package-lock.json
+│ │ └── package.json
+│ ├── cdk.out
+│ ├── manifest.json
+│ └── tree.json
+├── lib
+│ └── lambda-stack.ts
+├── package-lock.json
+├── package.json
+├── src
+│ ├── basic.js
+│ ├── node_modules # this is inside the src, (in addition to the root one required to build)
+│ ├── package-lock.json
+│ └── package.json
+
+- Solution2:
+  zip -r lambdas.zip src/_ node_modules/_
+
+const myLambda = new lambda.Function(this, 'iHaveNodeModules', {
+code: lambda.Code.fromAsset('lambdas.zip'),
+handler: 'src.basic.handler',
+runtime: lambda.Runtime.NODEJS_10_X
+})

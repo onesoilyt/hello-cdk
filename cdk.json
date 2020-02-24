@@ -1,3 +1,3 @@
 {
-  "app": "npx ts-node bin/hello-cdk.ts"
+  "app": "node lib/hello-cdk-stack"
 }
