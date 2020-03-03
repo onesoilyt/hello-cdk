@@ -3,6 +3,9 @@ import s3 = require("@aws-cdk/aws-s3");
 import apigateway = require("@aws-cdk/aws-apigateway");
 import dynamodb = require("@aws-cdk/aws-dynamodb");
 import lambda = require("@aws-cdk/aws-lambda");
+import { Rule, Schedule } from '@aws-cdk/aws-events';
+import { LambdaFunction } from '@aws-cdk/aws-events-targets';
+import iam = require('@aws-cdk/aws-iam');
 
 export class HelloCdkStack extends core.Stack {
   constructor(app: core.App, id: string, props?: core.StackProps) {
@@ -70,12 +73,44 @@ export class HelloCdkStack extends core.Stack {
     const deleteOne = new lambda.Function(this, "deleteItemFunction", {
       code: new lambda.AssetCode("lib/lambdas"),
       handler: "delete-one.handler",
-      runtime: lambda.Runtime.NODEJS_12_X,
-      environment: {
-        TABLE_NAME: dynamoTable.tableName,
-        PRIMARY_KEY: "itemId"
-      }
+      runtime: lambda.Runtime.NODEJS_12_X
     });
+
+    const cronJobFn = new lambda.Function(this, "cronJobFunction", {
+      code: new lambda.AssetCode("lib/lambdas"),
+      handler: "cronjob.handler",
+      runtime: lambda.Runtime.NODEJS_12_X,  
+    });
+
+    //Define the IAM role
+    const cronJobFnRole = new iam.Role(this, 'cronJobFnRole', {
+        assumedBy: new iam.ServicePrincipal('lambda.amazonaws.com')
+    });
+
+    cronJobFnRole.addToPolicy(new iam.PolicyStatement({
+        resources: [
+            '*'
+        ],
+        actions: [
+            'logs:CreateLogGroup',
+            'logs:CreateLogStream',
+            'logs:DescribeLogGroups',
+            'logs:DescribeLogStreams',
+            'logs:PutLogEvents',
+            'logs:GetLogEvents',
+            'logs:FilterLogEvents'
+        ]
+    }));    
+
+    // Run every day at 6PM UTC
+    // See https://docs.aws.amazon.com/lambda/latest/dg/tutorial-scheduled-events-schedule-expressions.html
+    const rule = new Rule(this, 'ScheduleRule', {
+      schedule: Schedule.cron({minute: "1", hour: "0"})
+      // this is what we want, every 15 minutes. 
+      // schedule: Schedule.cron({minute: "0/15"}) 
+    });
+
+    rule.addTarget(new LambdaFunction(cronJobFn));
 
     dynamoTable.grantReadWriteData(getAllLambda);
     dynamoTable.grantReadWriteData(getOneLambda);
